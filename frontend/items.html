@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daftar Barang - TemuBarang</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="container navbar">
+        <a href="index.html" class="brand">TemuBarang</a>
+        <nav class="nav-links">
+          <a href="items.html">Daftar Barang</a>
+          <a href="report.html">Lapor Barang</a>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="admin.html">Admin</a>
+          <span id="user-badge"></span>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container section">
+      <h2 class="section-title">Daftar Barang</h2>
+      <div class="row">
+        <input id="search-input" type="text" placeholder="Cari nama barang atau kata kunci" />
+        <select id="category-filter">
+          <option value="">Semua kategori</option>
+          <option value="Aksesori">Aksesori</option>
+          <option value="Dompet">Dompet</option>
+          <option value="Kendaraan">Kendaraan</option>
+          <option value="Elektronik">Elektronik</option>
+          <option value="Dokumen">Dokumen</option>
+        </select>
+      </div>
+      <div id="items-container" class="items-grid" style="margin-top: 20px;"></div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/items.js"></script>
+    <script>
+      renderUserBadge();
+      loadItems();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ajukan Klaim - TemuBarang</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="container navbar">
+        <a href="index.html" class="brand">TemuBarang</a>
+        <nav class="nav-links">
+          <a href="items.html">Daftar Barang</a>
+          <a href="report.html">Lapor Barang</a>
+          <a href="dashboard.html">Dashboard</a>
+          <span id="user-badge"></span>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container section">
+      <div class="form-wrap">
+        <h2 class="section-title">Ajukan Klaim</h2>
+        <div id="message-box" class="message"></div>
+        <p class="muted">Untuk memastikan barang ini benar milik Anda, jelaskan ciri khusus yang hanya pemilik barang kemungkinan ketahui.</p>
+        <form id="claim-form">
+          <label>
+            ID Barang
+            <input type="number" name="item_id" id="item-id" required />
+          </label>
+          <label>
+            Jelaskan ciri khusus barang
+            <textarea name="verification_answer" placeholder="Contoh: ada stiker kucing di casing" required></textarea>
+          </label>
+          <button type="submit" class="button primary">Kirim Klaim</button>
+        </form>
+      </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script>
+      renderUserBadge();
+      const params = new URLSearchParams(window.location.search);
+      const itemId = params.get('id');
+      if (itemId) {
+        document.getElementById('item-id').value = itemId;
+      }
+
+      const form = document.getElementById('claim-form');
+      const messageBox = document.getElementById('message-box');
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        if (!isLoggedIn()) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        try {
+          messageBox.className = 'message info';
+          messageBox.textContent = 'Mengirim klaim...';
+
+          const payload = Object.fromEntries(new FormData(form).entries());
+          const result = await apiFetch('http://localhost:3003/api/claims', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${getCurrentToken()}` },
+            body: JSON.stringify(payload),
+          });
+
+          messageBox.className = 'message success';
+          messageBox.textContent = result.message || 'Jawaban Anda telah dikirim untuk diverifikasi.';
+          form.reset();
+        } catch (error) {
+          messageBox.className = 'message error';
+          messageBox.textContent = error.message;
+        }
+      });
+    </script>
+  </body>
+</html>

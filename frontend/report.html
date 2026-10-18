@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lapor Barang - TemuBarang</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="container navbar">
+        <a href="index.html" class="brand">TemuBarang</a>
+        <nav class="nav-links">
+          <a href="items.html">Daftar Barang</a>
+          <a href="report.html">Lapor Barang</a>
+          <a href="dashboard.html">Dashboard</a>
+          <span id="user-badge"></span>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container section">
+      <div class="form-wrap">
+        <h2 class="section-title">Laporkan Barang Ditemukan</h2>
+        <div id="message-box" class="message"></div>
+        <p class="muted">Untuk memastikan barang ini benar milik Anda, ciri rahasia tidak akan ditampilkan ke publik.</p>
+        <form id="report-form">
+          <label>
+            Judul barang
+            <input type="text" name="title" placeholder="Contoh: Tas Ransel Hitam" required />
+          </label>
+          <div class="row">
+            <label>
+              Kategori
+              <select name="category" required>
+                <option value="">Pilih kategori</option>
+                <option value="Aksesori">Aksesori</option>
+                <option value="Dompet">Dompet</option>
+                <option value="Kendaraan">Kendaraan</option>
+                <option value="Elektronik">Elektronik</option>
+                <option value="Dokumen">Dokumen</option>
+              </select>
+            </label>
+            <label>
+              Warna
+              <input type="text" name="color" placeholder="Contoh: Hitam" />
+            </label>
+          </div>
+          <label>
+            Deskripsi
+            <textarea name="description" placeholder="Jelaskan barang yang ditemukan" required></textarea>
+          </label>
+          <div class="row">
+            <label>
+              Lokasi ditemukan
+              <input type="text" name="location_found" placeholder="Contoh: Stasiun Bandung" required />
+            </label>
+            <label>
+              Tanggal ditemukan
+              <input type="date" name="date_found" required />
+            </label>
+          </div>
+          <label>
+            URL gambar
+            <input type="url" name="image_url" placeholder="https://example.com/gambar.jpg" />
+          </label>
+          <label>
+            Ciri rahasia barang
+            <textarea name="secret_clue" placeholder="Ciri khusus yang hanya pemilik barang kemungkinan tahu" required></textarea>
+          </label>
+          <button type="submit" class="button primary">Laporkan</button>
+        </form>
+      </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script>
+      renderUserBadge();
+      const form = document.getElementById('report-form');
+      const messageBox = document.getElementById('message-box');
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        if (!isLoggedIn()) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        const payload = Object.fromEntries(new FormData(form).entries());
+
+        try {
+          messageBox.className = 'message info';
+          messageBox.textContent = 'Menyimpan laporan...';
+
+          const result = await apiFetch('http://localhost:3002/api/items', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${getCurrentToken()}` },
+            body: JSON.stringify(payload),
+          });
+
+          messageBox.className = 'message success';
+          messageBox.textContent = result.message || 'Barang berhasil dilaporkan.';
+          form.reset();
+        } catch (error) {
+          messageBox.className = 'message error';
+          messageBox.textContent = error.message;
+        }
+      });
+    </script>
+  </body>
+</html>

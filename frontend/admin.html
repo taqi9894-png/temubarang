@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - TemuBarang</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="container navbar">
+        <a href="index.html" class="brand">TemuBarang</a>
+        <nav class="nav-links">
+          <a href="items.html">Daftar Barang</a>
+          <a href="report.html">Lapor Barang</a>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="admin.html">Admin</a>
+          <span id="user-badge"></span>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container section">
+      <h2 class="section-title">Dashboard Admin</h2>
+      <div id="admin-content" class="card"></div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/admin.js"></script>
+    <script>
+      renderUserBadge();
+      loadAdminDashboard();
+    </script>
+  </body>
+</html>

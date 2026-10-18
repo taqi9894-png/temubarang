@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TemuBarang</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="container navbar">
+        <a href="index.html" class="brand">TemuBarang</a>
+        <nav class="nav-links">
+          <a href="items.html">Daftar Barang</a>
+          <a href="report.html">Lapor Barang</a>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="admin.html">Admin</a>
+          <span id="user-badge"></span>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container hero-grid">
+          <div>
+            <div class="hero-badge">Lost &amp; Found Kampus</div>
+            <h1>Temukan barang hilang di sekitar kampus dengan mudah.</h1>
+            <p>
+              TemuBarang membantu mahasiswa dan civitas akademika melaporkan barang hilang
+              atau ditemukan dengan proses yang cepat, aman, dan ramah dipakai.
+            </p>
+            <div class="hero-actions">
+              <a class="button primary" href="items.html">Cari Barang</a>
+              <a class="button secondary" href="report.html">Laporkan Barang</a>
+            </div>
+          </div>
+          <div class="hero-card">
+            <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=900&q=80" alt="Barang hilang" />
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <h2 class="section-title">Kenapa TemuBarang?</h2>
+          <div class="grid-3">
+            <div class="card">
+              <h3>Verifikasi aman</h3>
+              <p>Setiap klaim menggunakan ciri rahasia agar orang tidak sembarangan mengklaim barang milik orang lain.</p>
+            </div>
+            <div class="card">
+              <h3>Proses jelas</h3>
+              <p>Mulai dari laporan, verifikasi, hingga persetujuan admin dan notifikasi yang mudah dibaca.</p>
+            </div>
+            <div class="card">
+              <h3>Data tetap aman</h3>
+              <p>Ciri rahasia tidak dibagikan di halaman publik dan hanya dipakai untuk verifikasi internal.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script>
+      renderUserBadge();
+    </script>
+  </body>
+</html>

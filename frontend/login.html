@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - TemuBarang</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body data-mode="login">
+    <header>
+      <div class="container navbar">
+        <a href="index.html" class="brand">TemuBarang</a>
+        <nav class="nav-links">
+          <a href="items.html">Daftar Barang</a>
+          <a href="report.html">Lapor Barang</a>
+          <a href="dashboard.html">Dashboard</a>
+          <span id="user-badge"></span>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="form-wrap">
+        <h2 class="section-title">Masuk</h2>
+        <div id="message-box" class="message"></div>
+        <form id="auth-form">
+          <label>
+            Email
+            <input type="email" name="email" placeholder="contoh@email.com" required />
+          </label>
+          <label>
+            Password
+            <input type="password" name="password" placeholder="Masukkan password" required />
+          </label>
+          <button type="submit" class="button primary">Masuk</button>
+        </form>
+        <p class="muted">Belum punya akun? <a href="register.html">Daftar sekarang</a></p>
+      </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+      renderUserBadge();
+    </script>
+  </body>
+</html>
