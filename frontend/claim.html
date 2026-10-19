@@ -9,11 +9,14 @@
   <body>
     <header>
       <div class="container navbar">
-        <a href="index.html" class="brand">TemuBarang</a>
+        <span class="brand">TemuBarang</span>
         <nav class="nav-links">
+          <a href="index.html">Home</a>
           <a href="items.html">Daftar Barang</a>
           <a href="report.html">Lapor Barang</a>
           <a href="dashboard.html">Dashboard</a>
+          <a href="admin.html" data-admin-link hidden>Admin</a>
+          <button class="button secondary theme-toggle" type="button" data-theme-toggle aria-pressed="false">Mode gelap</button>
           <span id="user-badge"></span>
         </nav>
       </div>
@@ -22,19 +25,37 @@
     <main class="container section">
       <div class="form-wrap">
         <h2 class="section-title">Ajukan Klaim</h2>
-        <div id="message-box" class="message"></div>
-        <p class="muted">Untuk memastikan barang ini benar milik Anda, jelaskan ciri khusus yang hanya pemilik barang kemungkinan ketahui.</p>
-        <form id="claim-form">
+        <div id="message-box" class="message" role="status" aria-live="polite"></div>
+        <p class="muted">Isi survey kepemilikan dengan informasi yang Anda ingat. Admin akan meninjau jawaban dan menentukan hasil klaim.</p>
+        <div id="claim-item-summary" class="claim-item-summary">
+          <div class="empty-state">Memuat informasi barang...</div>
+        </div>
+        <form id="claim-form" hidden>
+          <input type="hidden" name="item_id" id="item-id" />
           <label>
-            ID Barang
-            <input type="number" name="item_id" id="item-id" required />
+            Nomor HP untuk koordinasi
+            <input type="tel" name="contact_phone" autocomplete="tel" placeholder="081234567890" />
+            <small class="muted">Kami menggunakan nomor dari profil jika tersedia. KTM digunakan untuk pemeriksaan identitas, bukan bukti kepemilikan barang.</small>
           </label>
           <label>
-            Jelaskan ciri khusus barang
-            <textarea name="verification_answer" placeholder="Contoh: ada stiker kucing di casing" required></textarea>
+            Kapan terakhir kali Anda memiliki atau melihat barang ini?
+            <input type="date" name="last_owned_date" id="last-owned-date" required />
+          </label>
+          <label>
+            Di mana terakhir kali Anda memiliki atau melihatnya?
+            <input type="text" name="last_seen_location" minlength="3" maxlength="200" placeholder="Ceritakan lokasi yang Anda ingat" required />
+          </label>
+          <label>
+            Ciri, isi, atau detail barang apa yang dapat membantu admin mengenali kepemilikannya?
+            <textarea name="ownership_details" minlength="5" placeholder="Tuliskan jawaban dengan detail yang Anda ingat" required></textarea>
+          </label>
+          <label>
+            Informasi tambahan (opsional)
+            <textarea name="additional_details" placeholder="Tambahkan konteks lain jika ada"></textarea>
           </label>
           <button type="submit" class="button primary">Kirim Klaim</button>
         </form>
+        <a class="button secondary claim-back-link" href="items.html">Kembali ke Daftar Barang</a>
       </div>
     </main>
 
@@ -43,12 +64,57 @@
       renderUserBadge();
       const params = new URLSearchParams(window.location.search);
       const itemId = params.get('id');
-      if (itemId) {
-        document.getElementById('item-id').value = itemId;
-      }
-
+      const itemIdInput = document.getElementById('item-id');
       const form = document.getElementById('claim-form');
       const messageBox = document.getElementById('message-box');
+      const itemSummary = document.getElementById('claim-item-summary');
+      const submitButton = form.querySelector('button[type="submit"]');
+      const today = new Date();
+      document.getElementById('last-owned-date').max = [
+        today.getFullYear(),
+        String(today.getMonth() + 1).padStart(2, '0'),
+        String(today.getDate()).padStart(2, '0'),
+      ].join('-');
+
+      if (isLoggedIn()) {
+        apiFetch('/api/auth/me').then(({ user }) => {
+          if (user?.phone) form.elements.contact_phone.value = user.phone;
+          else form.elements.contact_phone.required = true;
+        }).catch((error) => {
+          itemSummary.innerHTML = `<div class="message error">${escapeHTML(error.message)}</div>`;
+        });
+      } else {
+        form.elements.contact_phone.required = true;
+      }
+
+      async function loadClaimItem() {
+        if (!itemId || !/^[1-9]\d*$/.test(itemId) || !Number.isSafeInteger(Number(itemId))) {
+          itemSummary.innerHTML = '<div class="message error">Pilih barang dari halaman detail sebelum mengajukan klaim.</div>';
+          return;
+        }
+
+        itemIdInput.value = itemId;
+        try {
+          const result = await apiFetch(`/api/items/${encodeURIComponent(itemId)}`);
+          const item = result.item;
+          if (!item) throw new Error('Barang tidak ditemukan.');
+          if (item.status !== 'FOUND') {
+            itemSummary.innerHTML = `<div class="message info">${escapeHTML(item.title)} tidak tersedia untuk klaim saat ini.</div>`;
+            return;
+          }
+
+          itemSummary.innerHTML = `
+            <strong>${escapeHTML(item.title)}</strong>
+            <span>ID barang: #${escapeHTML(item.id)}</span>
+            <span>${escapeHTML(item.category)} · ${escapeHTML(item.location_found)}</span>
+          `;
+          form.hidden = false;
+        } catch (error) {
+          itemSummary.innerHTML = `<div class="message error">${escapeHTML(error.message)}</div>`;
+        }
+      }
+
+      loadClaimItem();
 
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -60,21 +126,36 @@
 
         try {
           messageBox.className = 'message info';
-          messageBox.textContent = 'Mengirim klaim...';
+          messageBox.textContent = 'Mengirim survey klaim...';
+          submitButton.disabled = true;
 
-          const payload = Object.fromEntries(new FormData(form).entries());
-          const result = await apiFetch('http://localhost:3003/api/claims', {
+          const answers = Object.fromEntries(new FormData(form).entries());
+          const verificationAnswer = [
+            `Waktu terakhir dimiliki: ${answers.last_owned_date}`,
+            `Lokasi terakhir: ${answers.last_seen_location.trim()}`,
+            `Ciri, isi, atau detail barang: ${answers.ownership_details.trim()}`,
+            answers.additional_details.trim()
+              ? `Informasi tambahan: ${answers.additional_details.trim()}`
+              : '',
+          ].filter(Boolean).join('\n');
+          const payload = {
+            item_id: answers.item_id,
+            verification_answer: verificationAnswer,
+            contact_phone: answers.contact_phone,
+          };
+          const result = await apiFetch('/api/claims', {
             method: 'POST',
             headers: { Authorization: `Bearer ${getCurrentToken()}` },
             body: JSON.stringify(payload),
           });
 
           messageBox.className = 'message success';
-          messageBox.textContent = result.message || 'Jawaban Anda telah dikirim untuk diverifikasi.';
-          form.reset();
+          messageBox.textContent = result.message || 'Survey klaim Anda telah dikirim kepada admin untuk ditinjau.';
+          form.hidden = true;
         } catch (error) {
           messageBox.className = 'message error';
           messageBox.textContent = error.message;
+          submitButton.disabled = false;
         }
       });
     </script>

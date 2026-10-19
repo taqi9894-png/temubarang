@@ -9,12 +9,14 @@
   <body>
     <header>
       <div class="container navbar">
-        <a href="index.html" class="brand">TemuBarang</a>
+        <span class="brand">TemuBarang</span>
         <nav class="nav-links">
+          <a href="index.html">Home</a>
           <a href="items.html">Daftar Barang</a>
           <a href="report.html">Lapor Barang</a>
           <a href="dashboard.html">Dashboard</a>
-          <a href="admin.html">Admin</a>
+          <a href="admin.html" data-admin-link hidden>Admin</a>
+          <button class="button secondary theme-toggle" type="button" data-theme-toggle aria-pressed="false">Mode gelap</button>
           <span id="user-badge"></span>
         </nav>
       </div>
@@ -24,45 +26,76 @@
       <section class="hero">
         <div class="container hero-grid">
           <div>
-            <div class="hero-badge">Lost &amp; Found Kampus</div>
-            <h1>Temukan barang hilang di sekitar kampus dengan mudah.</h1>
+            <h1>Barang Hilang? Temukan Kembali di TemuBarang.</h1>
             <p>
-              TemuBarang membantu mahasiswa dan civitas akademika melaporkan barang hilang
-              atau ditemukan dengan proses yang cepat, aman, dan ramah dipakai.
+              Temukan kembali barang yang hilang atau bantu seseorang menemukan miliknya.
+              Laporkan barang dengan mudah, ikuti proses verifikasi, dan bangun lingkungan
+              yang lebih peduli bersama TemuBarang.
             </p>
             <div class="hero-actions">
-              <a class="button primary" href="items.html">Cari Barang</a>
-              <a class="button secondary" href="report.html">Laporkan Barang</a>
+              <a class="button primary" href="report.html">Laporkan Barang Ditemukan</a>
+              <a class="button secondary" href="items.html">Lihat Barang Ditemukan</a>
             </div>
           </div>
           <div class="hero-card">
-            <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=900&q=80" alt="Barang hilang" />
+            <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=900&q=80" alt="Dua orang berjabat tangan" />
           </div>
         </div>
       </section>
 
       <section class="section">
-        <div class="container">
-          <h2 class="section-title">Kenapa TemuBarang?</h2>
-          <div class="grid-3">
-            <div class="card">
-              <h3>Verifikasi aman</h3>
-              <p>Setiap klaim menggunakan ciri rahasia agar orang tidak sembarangan mengklaim barang milik orang lain.</p>
-            </div>
-            <div class="card">
-              <h3>Proses jelas</h3>
-              <p>Mulai dari laporan, verifikasi, hingga persetujuan admin dan notifikasi yang mudah dibaca.</p>
-            </div>
-            <div class="card">
-              <h3>Data tetap aman</h3>
-              <p>Ciri rahasia tidak dibagikan di halaman publik dan hanya dipakai untuk verifikasi internal.</p>
-            </div>
+        <div class="container feature-overview">
+          <div>
+            <p class="section-kicker">Alur pencarian</p>
+            <h2 class="section-title">TemuBarang membantu pencarian terasa lebih terarah</h2>
           </div>
+          <div class="feature-list">
+            <article>
+              <h3>Verifikasi Klaim</h3>
+              <p>Admin meninjau jawaban survey kepemilikan dan membandingkannya dengan ciri rahasia sebelum memutuskan klaim.</p>
+            </article>
+            <article>
+              <h3>Proses yang Transparan</h3>
+              <p>Pantau status klaim dan pemberitahuan keputusan melalui dashboard akun Anda.</p>
+            </article>
+            <article>
+              <h3>Ciri Rahasia untuk Klaim</h3>
+              <p>Ciri rahasia tidak ditampilkan pada daftar barang dan digunakan untuk mencocokkan jawaban klaim.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-tinted" aria-labelledby="recent-items-title">
+        <div class="container">
+          <div class="section-heading-row">
+            <div>
+              <p class="section-kicker">Laporan terbaru</p>
+              <h2 class="section-title" id="recent-items-title">Barang yang Baru Ditemukan</h2>
+              <p class="section-intro">Lihat laporan terbaru dan cari barang yang mungkin menjadi milikmu.</p>
+            </div>
+            <a class="text-link" href="items.html">Lihat semua barang</a>
+          </div>
+          <div id="recent-items" class="items-grid">
+            <div class="empty-state">Memuat laporan terbaru...</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container callout">
+          <div>
+            <p class="section-kicker">Cari laporan</p>
+            <h2>Kehilangan Sesuatu? Periksa Laporan Terbaru.</h2>
+            <p>Telusuri barang yang ditemukan dan ajukan klaim jika salah satunya milikmu.</p>
+          </div>
+          <a class="button primary" href="items.html">Lihat Barang Ditemukan</a>
         </div>
       </section>
     </main>
 
     <script src="js/api.js"></script>
+    <script src="js/home.js"></script>
     <script>
       renderUserBadge();
     </script>

@@ -9,11 +9,14 @@
   <body data-mode="register">
     <header>
       <div class="container navbar">
-        <a href="index.html" class="brand">TemuBarang</a>
+        <span class="brand">TemuBarang</span>
         <nav class="nav-links">
+          <a href="index.html">Home</a>
           <a href="items.html">Daftar Barang</a>
           <a href="report.html">Lapor Barang</a>
           <a href="dashboard.html">Dashboard</a>
+          <a href="admin.html" data-admin-link hidden>Admin</a>
+          <button class="button secondary theme-toggle" type="button" data-theme-toggle aria-pressed="false">Mode gelap</button>
           <span id="user-badge"></span>
         </nav>
       </div>
@@ -22,6 +25,7 @@
     <main class="container">
       <div class="form-wrap">
         <h2 class="section-title">Daftar Akun</h2>
+        <p class="muted">Akun yang dibuat lewat pendaftaran mendapat peran <strong>Pengguna</strong>. Akses <strong>Admin</strong> hanya diberikan pada akun yang berwenang.</p>
         <div id="message-box" class="message"></div>
         <form id="auth-form">
           <label>
@@ -31,6 +35,10 @@
           <label>
             Email
             <input type="email" name="email" placeholder="contoh@email.com" required />
+          </label>
+          <label>
+            Nomor HP (opsional)
+            <input type="tel" name="phone" autocomplete="tel" placeholder="081234567890" />
           </label>
           <label>
             Password

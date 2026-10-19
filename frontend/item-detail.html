@@ -9,18 +9,21 @@
   <body>
     <header>
       <div class="container navbar">
-        <a href="index.html" class="brand">TemuBarang</a>
+        <span class="brand">TemuBarang</span>
         <nav class="nav-links">
+          <a href="index.html">Home</a>
           <a href="items.html">Daftar Barang</a>
           <a href="report.html">Lapor Barang</a>
           <a href="dashboard.html">Dashboard</a>
+          <a href="admin.html" data-admin-link hidden>Admin</a>
+          <button class="button secondary theme-toggle" type="button" data-theme-toggle aria-pressed="false">Mode gelap</button>
           <span id="user-badge"></span>
         </nav>
       </div>
     </header>
 
     <main class="container section">
-      <div id="item-detail"></div>
+      <div id="item-detail"><div class="empty-state">Memuat detail barang...</div></div>
     </main>
 
     <script src="js/api.js"></script>

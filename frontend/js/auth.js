@@ -15,8 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
       messageBox.textContent = 'Memproses...';
 
       const endpoint = mode === 'register'
-        ? 'http://localhost:3001/api/auth/register'
-        : 'http://localhost:3001/api/auth/login';
+        ? '/api/auth/register'
+        : '/api/auth/login';
 
       const response = await fetch(endpoint, {
         method: 'POST',

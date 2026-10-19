@@ -34,8 +34,11 @@ services:
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       CORS_ORIGIN: http://localhost:8080
+      UPLOAD_DIR: /app/uploads
     ports:
       - "3001:3001"
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
       postgres:
         condition: service_healthy
@@ -53,8 +56,11 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       INTERNAL_API_KEY: ${INTERNAL_API_KEY}
       CORS_ORIGIN: http://localhost:8080
+      UPLOAD_DIR: /app/uploads
     ports:
       - "3002:3002"
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
       postgres:
         condition: service_healthy
@@ -117,3 +123,4 @@ services:
 
 volumes:
   postgres_data:
+  uploads_data:

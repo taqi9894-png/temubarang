@@ -9,12 +9,14 @@
   <body>
     <header>
       <div class="container navbar">
-        <a href="index.html" class="brand">TemuBarang</a>
+        <span class="brand">TemuBarang</span>
         <nav class="nav-links">
+          <a href="index.html">Home</a>
           <a href="items.html">Daftar Barang</a>
           <a href="report.html">Lapor Barang</a>
           <a href="dashboard.html">Dashboard</a>
-          <a href="admin.html">Admin</a>
+          <a href="admin.html" data-admin-link hidden>Admin</a>
+          <button class="button secondary theme-toggle" type="button" data-theme-toggle aria-pressed="false">Mode gelap</button>
           <span id="user-badge"></span>
         </nav>
       </div>
@@ -23,17 +25,12 @@
     <main class="container section">
       <h2 class="section-title">Daftar Barang</h2>
       <div class="row">
-        <input id="search-input" type="text" placeholder="Cari nama barang atau kata kunci" />
+        <input id="search-input" type="search" placeholder="Cari ID (#12), nama barang, atau kata kunci" aria-label="Cari barang berdasarkan ID, nama, atau kata kunci" />
         <select id="category-filter">
           <option value="">Semua kategori</option>
-          <option value="Aksesori">Aksesori</option>
-          <option value="Dompet">Dompet</option>
-          <option value="Kendaraan">Kendaraan</option>
-          <option value="Elektronik">Elektronik</option>
-          <option value="Dokumen">Dokumen</option>
         </select>
       </div>
-      <div id="items-container" class="items-grid" style="margin-top: 20px;"></div>
+      <div id="items-container" class="items-grid" style="margin-top: 20px;"><div class="empty-state">Memuat daftar barang...</div></div>
     </main>
 
     <script src="js/api.js"></script>

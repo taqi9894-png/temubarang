@@ -9,11 +9,14 @@
   <body>
     <header>
       <div class="container navbar">
-        <a href="index.html" class="brand">TemuBarang</a>
+        <span class="brand">TemuBarang</span>
         <nav class="nav-links">
+          <a href="index.html">Home</a>
           <a href="items.html">Daftar Barang</a>
           <a href="report.html">Lapor Barang</a>
           <a href="dashboard.html">Dashboard</a>
+          <a href="admin.html" data-admin-link hidden>Admin</a>
+          <button class="button secondary theme-toggle" type="button" data-theme-toggle aria-pressed="false">Mode gelap</button>
           <span id="user-badge"></span>
         </nav>
       </div>
@@ -22,8 +25,9 @@
     <main class="container section">
       <div class="form-wrap">
         <h2 class="section-title">Laporkan Barang Ditemukan</h2>
-        <div id="message-box" class="message"></div>
-        <p class="muted">Untuk memastikan barang ini benar milik Anda, ciri rahasia tidak akan ditampilkan ke publik.</p>
+        <div id="message-box" class="message" role="status" aria-live="polite"></div>
+        <p class="muted">Masuk terlebih dahulu untuk mengirim laporan. Akun baru otomatis memiliki peran Pengguna. Peran Admin hanya diberikan pada akun yang berwenang.</p>
+        <p class="muted">Untuk membantu verifikasi klaim, ciri rahasia tidak ditampilkan ke publik.</p>
         <form id="report-form">
           <label>
             Judul barang
@@ -34,11 +38,6 @@
               Kategori
               <select name="category" required>
                 <option value="">Pilih kategori</option>
-                <option value="Aksesori">Aksesori</option>
-                <option value="Dompet">Dompet</option>
-                <option value="Kendaraan">Kendaraan</option>
-                <option value="Elektronik">Elektronik</option>
-                <option value="Dokumen">Dokumen</option>
               </select>
             </label>
             <label>
@@ -61,9 +60,23 @@
             </label>
           </div>
           <label>
-            URL gambar
-            <input type="url" name="image_url" placeholder="https://example.com/gambar.jpg" />
+            Nomor HP untuk koordinasi
+            <input type="tel" name="contact_phone" autocomplete="tel" placeholder="081234567890" />
+            <small class="muted">Opsional jika nomor HP sudah tersimpan di profil akun.</small>
           </label>
+          <div class="photo-upload">
+            <label for="item-photo">Pilih Foto Barang (opsional, maksimal 5 MB)</label>
+            <input id="item-photo" name="photo" type="file" aria-label="Pilih Foto Barang" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" />
+            <p class="muted">Format JPG, PNG, atau WEBP. Foto baru tampil di daftar publik setelah disetujui Admin.</p>
+            <div id="photo-preview" class="photo-preview" hidden>
+              <img id="photo-preview-image" alt="Pratinjau foto barang" />
+              <div>
+                <span id="photo-file-name"></span>
+                <span id="photo-file-size" class="muted"></span>
+                <button id="remove-photo" type="button" class="button secondary">Hapus foto</button>
+              </div>
+            </div>
+          </div>
           <label>
             Ciri rahasia barang
             <textarea name="secret_clue" placeholder="Ciri khusus yang hanya pemilik barang kemungkinan tahu" required></textarea>
@@ -78,6 +91,66 @@
       renderUserBadge();
       const form = document.getElementById('report-form');
       const messageBox = document.getElementById('message-box');
+      const categorySelect = form.elements.category;
+      const photoInput = document.getElementById('item-photo');
+      const photoPreview = document.getElementById('photo-preview');
+      const photoPreviewImage = document.getElementById('photo-preview-image');
+      const reportButton = form.querySelector('button[type="submit"]');
+      let previewUrl = null;
+      let accountPhone = '';
+      categorySelect.innerHTML = `<option value="">Pilih kategori</option>${ITEM_CATEGORIES.map((category) => `<option value="${escapeHTML(category)}">${escapeHTML(category)}</option>`).join('')}`;
+
+      function showMessage(type, text) {
+        messageBox.className = `message ${type}`;
+        messageBox.textContent = text;
+      }
+
+      function clearPhoto() {
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        previewUrl = null;
+        photoInput.value = '';
+        photoPreview.hidden = true;
+        photoPreviewImage.removeAttribute('src');
+        document.getElementById('photo-file-name').textContent = '';
+        document.getElementById('photo-file-size').textContent = '';
+      }
+
+      photoInput.addEventListener('change', () => {
+        const file = photoInput.files[0];
+        if (!file) return;
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)
+            || !/\.(jpe?g|png|webp)$/i.test(file.name)) {
+          clearPhoto();
+          showMessage('error', 'Pilih foto dengan format JPG, JPEG, PNG, atau WEBP.');
+          return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          clearPhoto();
+          showMessage('error', 'Ukuran foto maksimal 5 MB.');
+          return;
+        }
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        previewUrl = URL.createObjectURL(file);
+        photoPreviewImage.src = previewUrl;
+        document.getElementById('photo-file-name').textContent = file.name;
+        document.getElementById('photo-file-size').textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
+        photoPreview.hidden = false;
+        showMessage('', '');
+      });
+
+      document.getElementById('remove-photo').addEventListener('click', clearPhoto);
+
+      if (isLoggedIn()) {
+        apiFetch('/api/auth/me').then(({ user }) => {
+          if (user?.phone) {
+            accountPhone = user.phone;
+            form.elements.contact_phone.value = user.phone;
+          }
+          else form.elements.contact_phone.required = true;
+        }).catch((error) => showMessage('error', error.message));
+      } else {
+        form.elements.contact_phone.required = true;
+      }
 
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -87,24 +160,31 @@
           return;
         }
 
-        const payload = Object.fromEntries(new FormData(form).entries());
+        const payload = new FormData(form);
 
         try {
-          messageBox.className = 'message info';
-          messageBox.textContent = 'Menyimpan laporan...';
+          showMessage('info', 'Mengirim laporan dan menyimpan foto...');
+          reportButton.disabled = true;
 
-          const result = await apiFetch('http://localhost:3002/api/items', {
+          const response = await fetch('/api/items', {
             method: 'POST',
             headers: { Authorization: `Bearer ${getCurrentToken()}` },
-            body: JSON.stringify(payload),
+            body: payload,
           });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.message || 'Laporan gagal dikirim.');
 
-          messageBox.className = 'message success';
-          messageBox.textContent = result.message || 'Barang berhasil dilaporkan.';
+          const itemId = result.item?.id;
+          showMessage('success', itemId
+            ? `Laporan tersimpan dan menunggu verifikasi Admin. ID barang: #${itemId}.`
+            : result.message || 'Laporan tersimpan dan menunggu verifikasi Admin.');
           form.reset();
+          clearPhoto();
+          if (accountPhone) form.elements.contact_phone.value = accountPhone;
         } catch (error) {
-          messageBox.className = 'message error';
-          messageBox.textContent = error.message;
+          showMessage('error', error.message);
+        } finally {
+          reportButton.disabled = false;
         }
       });
     </script>

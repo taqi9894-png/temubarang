@@ -4,6 +4,13 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     role VARCHAR(20) NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')),
+    phone TEXT,
+    student_name VARCHAR(100),
+    nim VARCHAR(40),
+    study_program VARCHAR(120),
+    student_card_key TEXT,
+    identity_status VARCHAR(20) NOT NULL DEFAULT 'NOT_SUBMITTED',
+    identity_note TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -16,7 +23,11 @@ CREATE TABLE IF NOT EXISTS items (
     location_found VARCHAR(200) NOT NULL,
     date_found DATE NOT NULL,
     image_url TEXT,
+    photo_key TEXT,
     status VARCHAR(20) NOT NULL DEFAULT 'FOUND' CHECK (status IN ('FOUND', 'CLAIMED', 'RETURNED')),
+    listing_status VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (listing_status IN ('PENDING', 'APPROVED', 'REJECTED')),
+    review_note TEXT,
+    contact_phone TEXT,
     secret_clue TEXT NOT NULL,
     reported_by INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -28,6 +39,7 @@ CREATE TABLE IF NOT EXISTS claims (
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     verification_answer TEXT NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED')),
+    contact_phone TEXT,
     admin_note TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -65,6 +77,7 @@ INSERT INTO items (
     location_found,
     date_found,
     image_url,
+    listing_status,
     status,
     secret_clue,
     reported_by
@@ -78,7 +91,8 @@ VALUES
         'Stasiun Bandung',
         '2026-10-01',
         'https://images.unsplash.com/photo-1542291026-7eec264c27ff',
-        'FOUND',
+        'APPROVED',
+        'CLAIMED',
         'stiker kucing di bagian dalam casing',
         2
     ),
@@ -90,7 +104,8 @@ VALUES
         'Kopi Taman',
         '2026-10-03',
         'https://images.unsplash.com/photo-1627123424574-724758594e93',
-        'FOUND',
+        'APPROVED',
+        'CLAIMED',
         'kancing emas di sisi kiri',
         3
     ),
@@ -102,6 +117,7 @@ VALUES
         'Parkiran Kampus',
         '2026-10-05',
         'https://images.unsplash.com/photo-1558618666-fcd25c85cd64',
+        'APPROVED',
         'FOUND',
         'gantungan berbentuk bintang dan tali warna biru',
         2
@@ -110,12 +126,12 @@ ON CONFLICT DO NOTHING;
 
 INSERT INTO claims (item_id, user_id, verification_answer, status, admin_note)
 VALUES
-    (1, 3, 'Ada stiker kucing di casing', 'REJECTED', 'Verifikasi otomatis gagal'),
+    (1, 3, 'Ada stiker kucing di casing', 'PENDING', NULL),
     (2, 2, 'Ada kancing emas di sisi kiri dompet', 'PENDING', NULL)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO notifications (user_id, message, type, is_read)
 VALUES
     (2, 'Pengajuan klaim Anda sedang diverifikasi.', 'CLAIM_PENDING', false),
-    (3, 'Klaim barang Anda telah ditolak.', 'CLAIM_REJECTED', false)
+    (3, 'Pengajuan klaim Anda sedang diverifikasi.', 'CLAIM_PENDING', false)
 ON CONFLICT DO NOTHING;

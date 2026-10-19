@@ -9,11 +9,14 @@
   <body>
     <header>
       <div class="container navbar">
-        <a href="index.html" class="brand">TemuBarang</a>
+        <span class="brand">TemuBarang</span>
         <nav class="nav-links">
+          <a href="index.html">Home</a>
           <a href="items.html">Daftar Barang</a>
           <a href="report.html">Lapor Barang</a>
           <a href="dashboard.html">Dashboard</a>
+          <a href="admin.html" data-admin-link hidden>Admin</a>
+          <button class="button secondary theme-toggle" type="button" data-theme-toggle aria-pressed="false">Mode gelap</button>
           <span id="user-badge"></span>
         </nav>
       </div>
@@ -21,56 +24,10 @@
 
     <main class="container section">
       <h2 class="section-title">Dashboard Saya</h2>
-      <div id="dashboard-content" class="card"></div>
+      <div id="dashboard-content" class="card"><div class="empty-state">Memuat dashboard...</div></div>
     </main>
 
     <script src="js/api.js"></script>
-    <script>
-      renderUserBadge();
-
-      async function loadDashboard() {
-        if (!isLoggedIn()) {
-          window.location.href = 'login.html';
-          return;
-        }
-
-        const content = document.getElementById('dashboard-content');
-        try {
-          const claims = await apiFetch('http://localhost:3003/api/claims/my', {
-            method: 'GET',
-            headers: { Authorization: `Bearer ${getCurrentToken()}` },
-          });
-
-          const notifications = await apiFetch('http://localhost:3004/api/notifications', {
-            method: 'GET',
-            headers: { Authorization: `Bearer ${getCurrentToken()}` },
-          });
-
-          const claimHtml = (claims.claims || []).length
-            ? `<ul class="list">${(claims.claims || []).map((claim) => `
-                <li><strong>${claim.item_title}</strong><br><span class="muted">Status: ${claim.status}</span><br><small>${claim.verification_answer}</small></li>
-              `).join('')}</ul>`
-            : '<div class="empty-state">Belum ada klaim.</div>';
-
-          const notifHtml = (notifications.notifications || []).length
-            ? `<ul class="list">${(notifications.notifications || []).map((n) => `
-                <li>${n.message} <small>(${n.type})</small></li>
-              `).join('')}</ul>`
-            : '<div class="empty-state">Belum ada notifikasi.</div>';
-
-          content.innerHTML = `
-            <h3>Klaim saya</h3>
-            ${claimHtml}
-            <hr />
-            <h3>Notifikasi</h3>
-            ${notifHtml}
-          `;
-        } catch (error) {
-          content.innerHTML = `<div class="message error">${error.message}</div>`;
-        }
-      }
-
-      loadDashboard();
-    </script>
+    <script src="js/dashboard.js"></script>
   </body>
 </html>

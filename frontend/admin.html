@@ -9,12 +9,14 @@
   <body>
     <header>
       <div class="container navbar">
-        <a href="index.html" class="brand">TemuBarang</a>
+        <span class="brand">TemuBarang</span>
         <nav class="nav-links">
+          <a href="index.html">Home</a>
           <a href="items.html">Daftar Barang</a>
           <a href="report.html">Lapor Barang</a>
           <a href="dashboard.html">Dashboard</a>
-          <a href="admin.html">Admin</a>
+          <a href="admin.html" data-admin-link hidden>Admin</a>
+          <button class="button secondary theme-toggle" type="button" data-theme-toggle aria-pressed="false">Mode gelap</button>
           <span id="user-badge"></span>
         </nav>
       </div>
@@ -22,14 +24,92 @@
 
     <main class="container section">
       <h2 class="section-title">Dashboard Admin</h2>
-      <div id="admin-content" class="card"></div>
+      <div id="admin-summary" class="admin-summary" aria-live="polite">
+        <div class="empty-state">Memuat ringkasan...</div>
+      </div>
+
+      <section class="admin-section" aria-labelledby="reports-title">
+        <div class="section-heading-row">
+          <div>
+            <h3 id="reports-title" class="admin-section-title">Laporan Barang</h3>
+            <p class="muted">Laporan terbaru dari pengguna. Status mengikuti status barang yang tersedia di sistem.</p>
+          </div>
+        </div>
+        <form id="report-filters" class="admin-filters">
+          <label>
+            Cari laporan
+            <input name="search" type="search" placeholder="ID, nama barang, kategori, lokasi, pelapor" />
+          </label>
+          <label>
+            Status barang
+            <select name="status">
+              <option value="">Semua status</option>
+              <option value="FOUND">Ditemukan</option>
+              <option value="CLAIMED">Menunggu klaim</option>
+              <option value="RETURNED">Sudah dikembalikan</option>
+            </select>
+          </label>
+          <label>
+            Status verifikasi laporan
+            <select name="review_status">
+              <option value="">Semua verifikasi</option>
+              <option value="PENDING">Menunggu</option>
+              <option value="APPROVED">Disetujui</option>
+              <option value="REJECTED">Ditolak</option>
+            </select>
+          </label>
+          <button class="button primary" type="submit">Cari</button>
+        </form>
+        <div id="report-message" role="status" aria-live="polite"></div>
+        <div id="reports-content" class="admin-table-card" aria-live="polite">
+          <div class="empty-state">Memuat laporan...</div>
+        </div>
+        <nav id="reports-pagination" class="admin-pagination" aria-label="Halaman laporan" hidden></nav>
+      </section>
+
+      <section class="admin-section" aria-labelledby="identities-title">
+        <div class="section-heading-row">
+          <div>
+            <h3 id="identities-title" class="admin-section-title">Verifikasi Identitas Mahasiswa</h3>
+            <p class="muted">Pemeriksaan KTM dilakukan manual dan terpisah dari keputusan kepemilikan klaim.</p>
+          </div>
+        </div>
+        <div id="identity-message" role="status" aria-live="polite"></div>
+        <div id="identities-content" class="admin-claims" aria-live="polite">
+          <div class="empty-state">Memuat identitas...</div>
+        </div>
+      </section>
+
+      <section class="admin-section" aria-labelledby="claims-title">
+        <div class="section-heading-row">
+          <div>
+            <h3 id="claims-title" class="admin-section-title">Verifikasi Klaim</h3>
+            <p class="muted">Tinjau survey dan ciri rahasia, lalu simpan keputusan serta catatan admin.</p>
+          </div>
+        </div>
+        <form id="claim-filters" class="admin-filters">
+          <label>
+            Cari klaim
+            <input name="search" type="search" placeholder="ID klaim, ID barang, nama barang, pemohon" />
+          </label>
+          <label>
+            Status klaim
+            <select name="status">
+              <option value="">Semua status</option>
+              <option value="PENDING">Menunggu</option>
+              <option value="APPROVED">Disetujui</option>
+              <option value="REJECTED">Ditolak</option>
+            </select>
+          </label>
+        </form>
+        <div id="claim-message" role="status" aria-live="polite"></div>
+        <div id="admin-content" class="admin-claims">
+          <div class="empty-state">Memuat klaim...</div>
+        </div>
+      </section>
     </main>
 
     <script src="js/api.js"></script>
     <script src="js/admin.js"></script>
-    <script>
-      renderUserBadge();
-      loadAdminDashboard();
-    </script>
   </body>
 </html>
